@@ -75,7 +75,7 @@ rsi_d <- quanteda::corpus(
 dt <- bind_rows(
   left_join(
     textstat_frequency(srf_d, groups = docvars(srf_d, "datum")) %>% 
-      filter(stringr::str_detect(feature, "Corona|Virus")) %>% 
+      filter(stringr::str_detect(feature, "Corona|Virus|n-Cov|[CO|Co]VID")) %>% 
       group_by(group) %>% 
       summarise(Nennungen = sum(frequency)) %>% 
       mutate(Datum = as.Date(group)) %>% 
@@ -94,7 +94,7 @@ dt <- bind_rows(
   ),
   left_join(
     textstat_frequency(rts_d, groups = docvars(rts_d, "datum")) %>% 
-      filter(stringr::str_detect(feature, "[C|c]orona|[V|v]irus")) %>% 
+      filter(stringr::str_detect(feature, "[C|c]orona|[V|v]irus|n-Cov|[CO|Co]VID")) %>% 
       group_by(group) %>% 
       summarise(Nennungen = sum(frequency)) %>% 
       mutate(Datum = as.Date(group)) %>% 
@@ -113,7 +113,7 @@ dt <- bind_rows(
   ),
   left_join(
     textstat_frequency(rsi_d, groups = docvars(rsi_d, "datum")) %>% 
-      filter(stringr::str_detect(feature, "[C|c]orona|[V|v]irus")) %>% 
+      filter(stringr::str_detect(feature, "[C|c]orona|[V|v]irus|n-Cov|[CO|Co]VID")) %>% 
       group_by(group) %>% 
       summarise(Nennungen = sum(frequency)) %>% 
       mutate(Datum = as.Date(group)) %>% 
@@ -163,8 +163,8 @@ dt %>%
     )  +
   labs(
     title = "COVID-19 in Swiss TV News", 
-    subtitle = "Weekly Cumulative Frequency of 'Corona' and 'Virus' by Swiss Television Station",
-    x = "Week", y = "Frequency per 1000 Words"
+    subtitle = "Weekly Cumulative Frequency of Coronavirus Key Terms by Swiss Television Station",
+    x = "Week", y = "Frequency per 1000 Words", caption = "Terms: Corona, Virus, n-Cov, COVID"
     ) 
 
 ggsave("covid_freq.png", dpi = 1000, width = 8, height = 4.5)
@@ -177,7 +177,7 @@ srf_assoc <- tibble::tibble(
   sentence = tokenizers::tokenize_sentences(srf$ut)
   ) %>% 
   unnest(sentence) %>%  
-  mutate(covid = stringr::str_detect(sentence, "[C|c]orona|[V|v]irus")) %>% 
+  mutate(covid = stringr::str_detect(sentence, "covid")) %>% 
   filter(!is.na(covid)) %>% 
   mutate(id = c(1:n())) %>% 
   tsibble::as_tsibble(key = id, index = date) %>% 
